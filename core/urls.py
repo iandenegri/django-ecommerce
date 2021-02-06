@@ -3,12 +3,14 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from .views import item_list, product_list, checkout_view
+from .views import checkout, HomeView, ItemDetailView, add_to_cart, delete_from_cart
 
 app_name = 'core'
 
 urlpatterns = [
-    path('', item_list, name='item-list'),
-    path('products/', product_list, name='product-list'),
-    path('checkout/', checkout_view, name='checkout')
+    path('', HomeView.as_view(), name='home'),
+    path('item/<slug>', ItemDetailView.as_view(), name='item_detail'),
+    path('checkout/', checkout, name='checkout'),
+    path('add-to-cart/<slug>', add_to_cart, name='add_to_cart'),
+    path('delete-from-cart/<slug>', delete_from_cart, name='delete_from_cart')
 ]
