@@ -61,3 +61,9 @@ class Order(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def cart_item_count(self):
+        cart_item_total = 0
+        for item in self.items.all():
+            cart_item_total += item.quantity
+        return cart_item_total

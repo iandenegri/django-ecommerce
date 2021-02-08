@@ -9,6 +9,7 @@ from .models import Item, Order, OrderItem
 # Create your views here.
 class HomeView(ListView):
     model = Item
+    paginate_by = 10
     template_name = 'home.html'
 
 class ItemDetailView(DetailView):
@@ -31,7 +32,6 @@ def add_to_cart(request, slug):
         # Check if the item is in the order
         if order.items.filter(item=item).exists():
             order_item = order.items.get(item=item)
-            messages.success(request, "This item was added to your cart.")
         else:
             order_item = OrderItem.objects.create(item=item, user=request.user)
             messages.success(request, "This item was added to your cart.")
@@ -39,7 +39,7 @@ def add_to_cart(request, slug):
             # If it's already in the order then they're trying to add more to the order.
             order_item.quantity += 1
             order_item.save()
-            messages.success(request, "This item was added to your cart.")
+            messages.success(request, f"This item was added to your cart. Item quantity increased to {order_item.quantity}.")
         else:
             order.items.add(order_item)
     return redirect('core:item_detail', slug = slug)
@@ -66,5 +66,5 @@ def delete_from_cart(request, slug):
     else:
         order_item.quantity -= 1
         order_item.save()
-        messages.success(request, "One copy of this item was removed from your cart.")
+        messages.success(request, f"One copy of this item was removed from your cart. Item quantity is now {order_item.quantity}.")
     return redirect('core:item_detail', slug = slug)
