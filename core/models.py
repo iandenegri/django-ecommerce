@@ -42,6 +42,21 @@ class Item(models.Model):
             'slug': self.slug
         })
 
+    def get_add_to_order_summary_url(self):
+        return reverse('core:add_to_order_summary', kwargs={
+            'slug': self.slug
+        })
+
+    def get_delete_one_from_order_summary_url(self):
+        return reverse('core:delete_one_from_order_summary', kwargs={
+            'slug': self.slug
+        })
+
+    def get_delete_all_from_order_summary_url(self):
+        return reverse('core:delete_all_from_order_summary', kwargs={
+            'slug': self.slug
+        })
+
 # Items that make up an Order. Link between items and orders
 class OrderItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -50,6 +65,19 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} of {self.item.title} for {self.user}'s order"
+
+    def get_total_item_price(self):
+        if self.item.discount_price:
+            return (self.quantity * self.item.discount_price)
+        else:
+            return (self.quantity * self.item.price)
+
+    def get_amount_saved(self):
+        if self.item.discount_price: 
+            return (self.item.price - self.item.discount_price) * self.quantity
+        else:
+            return 0
+
 
 # Holds all the items that are part of an order
 class Order(models.Model):
@@ -67,3 +95,9 @@ class Order(models.Model):
         for item in self.items.all():
             cart_item_total += item.quantity
         return cart_item_total
+
+    def get_total(self):
+        total = 0
+        for item in self.items.all():
+            total += (item.get_total_item_price())
+        return total
